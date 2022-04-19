@@ -13,6 +13,8 @@
 #include <string>
 #include <thread>
 #include <nlohmann/json.hpp>
+#include <algorithm>
+#include <utility>
 #include <fstream>
 namespace http = beast::http;           // from <boost/beast/http.hpp>
 namespace net = boost::asio;            // from <boost/asio.hpp>
