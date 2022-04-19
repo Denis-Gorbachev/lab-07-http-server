@@ -1,7 +1,7 @@
 // Copyright 2021 Your Name <your_email>
 
-#ifndef SERVER_HPP_
-#define SERVER_HPP_
+#ifndef INCLUDE_SERVER_HPP_
+#define INCLUDE_SERVER_HPP_
 #include <beast/core.hpp>
 #include <beast/http.hpp>
 #include <beast/version.hpp>
@@ -38,7 +38,8 @@ handle_request(
     res.set(http::field::server, BEAST_VERSION_STRING);
     res.set(http::field::content_type, "text/html");
     res.keep_alive(req.keep_alive());
-    res.set(beast::http::field::body, "The resource '" + std::string(target) + "' was not found.");
+    res.set(beast::http::field::body,
+            "The resource '" + std::string(target) + "' was not found.");
     res.prepare_payload();
     return res;
   };
@@ -47,11 +48,13 @@ handle_request(
   auto const server_error =
       [&req](beast::string_view what)
   {
-    http::response<http::string_body> res{http::status::internal_server_error, 11};
+    http::response<http::string_body> res
+        {http::status::internal_server_error, 11};
     res.set(http::field::server, BEAST_VERSION_STRING);
     res.set(http::field::content_type, "text/html");
     res.keep_alive(req.keep_alive());
-    res.set(beast::http::field::body, "An error occurred: '" + std::string(what) + "'");
+    res.set(beast::http::field::body,
+            "An error occurred: '" + std::string(what) + "'");
     res.prepare_payload();
     return res;
   };
@@ -61,12 +64,12 @@ handle_request(
   http::string_body::value_type body = res_array.dump(4);
 
   // Handle the case where the file doesn't exist
-  if(ec == beast::errc::no_such_file_or_directory) {
+  if (ec == beast::errc::no_such_file_or_directory) {
     return send(not_found(req.target()));
   }
 
   // Handle an unknown error
-  if(ec) {
+  if (ec) {
     return send(server_error(ec.message()));
   }
 
@@ -139,12 +142,12 @@ do_session(tcp::socket& socket)
   // This lambda is used to send messages
   send_lambda<tcp::socket> lambda{socket, close, ec};
 
-  for(;;)
+  for (;;)
   {
     // Read a request
     http::request<http::string_body> req;
-    http::read(socket, buffer,req, ec);
-    if(req.body[0]=='{'){
+    http::read(socket, buffer, req, ec);
+    if (req.body[0] == '{'){
       nlohmann::json req_array = nlohmann::json::parse(req.body);
 
       std::ifstream file(R"(D:\Programming\CLionProjects\lab-07-http-server\include\suggestions.json)");
@@ -152,8 +155,8 @@ do_session(tcp::socket& socket)
       std::sort(json_file.begin(), json_file.end());
       int position_count = 0;
       res_array["suggestions"] = {};
-      for(size_t i = 0; i < json_file.size(); i++){
-        if(json_file[i].at("id") == req_array.at("input")){
+      for (size_t i = 0; i < json_file.size(); i++){
+        if (json_file[i].at("id") == req_array.at("input")){
           res_array["suggestions"].push_back(nlohmann::json::object({
               {"text", json_file[i].at("name")},
               {"position", position_count}
@@ -162,16 +165,16 @@ do_session(tcp::socket& socket)
         }
       }
     }
-    if(ec == http::error::end_of_stream)
+    if (ec == http::error::end_of_stream)
       break;
-    if(ec){
+    if (ec){
       return fail(ec, "read");}
 
     // Send the response
     handle_request(std::move(req), lambda);
-    if(ec)
+    if (ec)
       return fail(ec, "write");
-    if(close)
+    if (close)
     {
       // This means we should close the connection, usually because
       // the response indicated the "Connection: close" semantic.
@@ -186,4 +189,4 @@ do_session(tcp::socket& socket)
 }
 
 //------------------------------------------------------------------------------
-#endif // SERVER_HPP_
+#endif //INCLUDE_SERVER_HPP_
