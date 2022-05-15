@@ -20,7 +20,7 @@ HunterGate(
   SHA1 "95c47c92f68edb091b5d6d18924baabe02a6962a"
 )
 
-link_libraries(ws2_32 wsock32)
+#link_libraries(ws2_32 wsock32)
 # TODO: rename project and delete this comment
 project(template VERSION 0.1.0)
 string(APPEND CMAKE_CXX_FLAGS " -pedantic -Werror -Wall -Wextra")
